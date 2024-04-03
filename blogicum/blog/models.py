@@ -1,7 +1,8 @@
-from django.db import models
 from django.contrib.auth import get_user_model
+from django.db import models
 
 from core.models import PublishedModel
+from .utils import PublishedPostQuerySet
 
 TITLE_MAX_LENGTH = 256
 
@@ -75,15 +76,20 @@ class Post(PublishedModel):
         verbose_name_plural = 'Публикации'
         ordering = ['-id']
 
+    objects = PublishedPostQuerySet.as_manager()
+
     def __str__(self):
         return self.title
 
 
 class Comment(models.Model):
     text = models.TextField(verbose_name='Текст комментария')
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comment', verbose_name='Публикация')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
-    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Автор')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE,
+                             related_name='comment', verbose_name='Публикация')
+    created_at = models.DateTimeField(
+        auto_now_add=True, verbose_name='Создано')
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, verbose_name='Автор')
 
     class Meta:
         verbose_name = 'комментарий'

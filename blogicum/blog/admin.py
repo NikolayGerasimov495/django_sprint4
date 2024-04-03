@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Category, Location, Post, Comment
+from .models import Category, Location, Post
 
 
 admin.site.empty_value_display = 'Не задано'
@@ -20,4 +20,3 @@ class PostAdmin(admin.ModelAdmin):
 
 admin.site.register(Category)
 admin.site.register(Location)
-

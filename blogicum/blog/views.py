@@ -1,17 +1,14 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from django.views.generic import (
     CreateView, DeleteView, DetailView, ListView, UpdateView
 )
-from django.urls import reverse
-from django.utils import timezone
 
-
-from .models import Category, Comment, Post
 from .forms import CommentForm, PostForm, ProfileEditForm
+from .models import Category, Comment, Post
 
 User = get_user_model()
 
@@ -19,17 +16,23 @@ NUMBER_OF_PUBLICATIONS_PER_PAGE = 10
 
 
 class PostMixin:
+    """Миксин для работы с публикациями"""
+
     model = Post
     template_name = 'blog/create.html'
 
 
 class CommentMixin:
+    """Миксин для работы с комментариями"""
+
     model = Comment
     template_name = "blog/comment.html"
     form_class = CommentForm
 
 
 class PostListView(ListView):
+    """Представление для списка публикаций"""
+
     model = Post
     template_name = 'blog/index.html'
     paginate_by = NUMBER_OF_PUBLICATIONS_PER_PAGE
@@ -37,20 +40,20 @@ class PostListView(ListView):
     def get_queryset(self):
         return (
             self.model.objects.select_related('location', 'author', 'category')
-            .filter(is_published=True,
-                    category__is_published=True,
-                    pub_date__lte=timezone.now())
-            .annotate(comment_count=Count("comment"))
-            .order_by("-pub_date"))
+            .published_filter()
+            .published_count_order())
 
 
 class PostDetailView(LoginRequiredMixin, DetailView):
+    """Представление публикации"""
+
     model = Post
     template_name = 'blog/detail.html'
 
     def get_object(self, queryset=None):
         post = get_object_or_404(
-            self.model.objects.select_related('location', 'author', 'category'),
+            self.model.objects.select_related(
+                'location', 'author', 'category'),
             pk=self.kwargs['id']
         )
         if post.is_published or self.request.user == post.author:
@@ -65,6 +68,8 @@ class PostDetailView(LoginRequiredMixin, DetailView):
 
 
 class CategoryPostsListView(ListView):
+    """Представление категории публикаций"""
+
     model = Post
     paginate_by = NUMBER_OF_PUBLICATIONS_PER_PAGE
     template_name = 'blog/category.html'
@@ -76,11 +81,10 @@ class CategoryPostsListView(ListView):
             is_published=True)
 
         return (
-            category.category_posts.select_related('location', 'author', 'category')
-            .filter(is_published=True,
-                    pub_date__lte=timezone.now())
-            .annotate(comment_count=Count("comment"))
-            .order_by("-pub_date"))
+            category.category_posts.select_related(
+                'location', 'author', 'category')
+            .published_filter()
+            .published_count_order())
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -91,6 +95,8 @@ class CategoryPostsListView(ListView):
 
 
 class PostCreateView(PostMixin, LoginRequiredMixin, CreateView):
+    """Представление для создания новой публикации"""
+
     form_class = PostForm
 
     def form_valid(self, form):
@@ -102,6 +108,8 @@ class PostCreateView(PostMixin, LoginRequiredMixin, CreateView):
 
 
 class PostUpdateView(PostMixin, LoginRequiredMixin, UpdateView):
+    """Представление для редактирования публикации"""
+
     form_class = PostForm
     pk_url_kwarg = 'post_id'
 
@@ -111,10 +119,13 @@ class PostUpdateView(PostMixin, LoginRequiredMixin, UpdateView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
-        return reverse('blog:post_detail', kwargs={'id': self.kwargs['post_id']})
+        return reverse('blog:post_detail',
+                       kwargs={'id': self.kwargs['post_id']})
 
 
 class PostDeleteView(PostMixin, LoginRequiredMixin, DeleteView):
+    """Представление для удаления публикации"""
+
     pk_url_kwarg = 'post_id'
 
     def dispatch(self, request, *args, **kwargs):
@@ -132,6 +143,8 @@ class PostDeleteView(PostMixin, LoginRequiredMixin, DeleteView):
 
 
 class ProfileListView(ListView):
+    """Представление списка публикаций пользователя"""
+
     model = Post
     template_name = 'blog/profile.html'
     paginate_by = NUMBER_OF_PUBLICATIONS_PER_PAGE
@@ -140,8 +153,7 @@ class ProfileListView(ListView):
         return (
             self.model.objects.select_related('author')
             .filter(author__username=self.kwargs['username'])
-            .annotate(comment_count=Count("comment"))
-            .order_by("-pub_date"))
+            .published_count_order())
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -152,6 +164,8 @@ class ProfileListView(ListView):
 
 
 class ProfileUpdateView(LoginRequiredMixin, UpdateView):
+    """Представление для изменений данных пользователя в профиле"""
+
     template_name = 'blog/user.html'
     form_class = ProfileEditForm
 
@@ -163,6 +177,8 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class CommentCreateView(CommentMixin, LoginRequiredMixin, CreateView):
+    """Представление для создания комментария"""
+
     post_obj = None
 
     def dispatch(self, request, *args, **kwargs):
@@ -180,6 +196,8 @@ class CommentCreateView(CommentMixin, LoginRequiredMixin, CreateView):
 
 
 class CommentBaseView(CommentMixin, LoginRequiredMixin):
+    """Базовое представление для работы с комментариями"""
+
     pk_url_kwarg = "comment_id"
 
     def dispatch(self, request, *args, **kwargs):
@@ -197,8 +215,12 @@ class CommentBaseView(CommentMixin, LoginRequiredMixin):
 
 
 class CommentUpdateView(CommentBaseView, UpdateView):
+    """Представление для редактировани комментария"""
+
     pass
 
 
 class CommentDeleteView(CommentBaseView, DeleteView):
+    """Представление для удаления комментария"""
+
     pass
