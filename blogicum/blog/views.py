@@ -131,7 +131,8 @@ class ProfileListView(ListView):
         return context
 
 
-class ProfileUpdateView(ProfileGetSuccessUrlMixin, LoginRequiredMixin, UpdateView):
+class ProfileUpdateView(ProfileGetSuccessUrlMixin, LoginRequiredMixin,
+                        UpdateView):
     """Представление для изменений данных пользователя в профиле"""
 
     template_name = 'blog/user.html'
