@@ -86,7 +86,8 @@ class Post(PublishedModel):
 class Comment(models.Model):
     text = models.TextField(verbose_name='Текст комментария')
     post = models.ForeignKey(Post, on_delete=models.CASCADE,
-                             related_name='comments', verbose_name='Публикация')
+                             related_name='comments',
+                             verbose_name='Публикация')
     created_at = models.DateTimeField(
         auto_now_add=True, verbose_name='Создано')
     author = models.ForeignKey(

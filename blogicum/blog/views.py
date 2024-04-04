@@ -7,8 +7,9 @@ from django.views.generic import (
 )
 
 from .forms import CommentForm, PostForm, ProfileEditForm
-from .mixins import (CommentBaseViewMixin, CommentMixin, DispatchMixin, ProfileGetSuccessUrlMixin,
-                     PostDetailGetSuccessUrlMixin, PostMixin)
+from .mixins import (CommentBaseViewMixin, CommentMixin, DispatchMixin,
+                     ProfileGetSuccessUrlMixin, PostDetailGetSuccessUrlMixin,
+                     PostMixin)
 from .models import Category, Post
 
 User = get_user_model()
@@ -78,7 +79,8 @@ class CategoryPostsListView(ListView):
         return context
 
 
-class PostCreateView(PostMixin, ProfileGetSuccessUrlMixin, LoginRequiredMixin, CreateView):
+class PostCreateView(PostMixin, ProfileGetSuccessUrlMixin, LoginRequiredMixin,
+                     CreateView):
     """Представление для создания новой публикации"""
 
     form_class = PostForm
@@ -88,14 +90,16 @@ class PostCreateView(PostMixin, ProfileGetSuccessUrlMixin, LoginRequiredMixin, C
         return super().form_valid(form)
 
 
-class PostUpdateView(PostDetailGetSuccessUrlMixin, PostMixin, DispatchMixin, LoginRequiredMixin, UpdateView):
+class PostUpdateView(PostDetailGetSuccessUrlMixin, PostMixin, DispatchMixin,
+                     LoginRequiredMixin, UpdateView):
     """Представление для редактирования публикации"""
 
     form_class = PostForm
     pk_url_kwarg = 'post_id'
 
 
-class PostDeleteView(PostMixin, DispatchMixin, ProfileGetSuccessUrlMixin, LoginRequiredMixin, DeleteView):
+class PostDeleteView(PostMixin, DispatchMixin, ProfileGetSuccessUrlMixin,
+                     LoginRequiredMixin, DeleteView):
     """Представление для удаления публикации"""
 
     pk_url_kwarg = 'post_id'
@@ -137,7 +141,8 @@ class ProfileUpdateView(ProfileGetSuccessUrlMixin, LoginRequiredMixin, UpdateVie
         return self.request.user
 
 
-class CommentCreateView(PostDetailGetSuccessUrlMixin, CommentMixin, LoginRequiredMixin, CreateView):
+class CommentCreateView(PostDetailGetSuccessUrlMixin, CommentMixin,
+                        LoginRequiredMixin, CreateView):
     """Представление для создания комментария"""
 
     post_obj = None
