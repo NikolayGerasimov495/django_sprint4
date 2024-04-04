@@ -13,7 +13,7 @@ class PostForm(forms.ModelForm):
         model = Post
         exclude = ('author', 'created_at',)
         widgets = {
-            'pub_date': forms.DateInput(attrs={'type': 'date'})}
+            'pub_date': forms.DateTimeInput(attrs={'type': 'datetime-local'})}
 
 
 class ProfileEditForm(forms.ModelForm):

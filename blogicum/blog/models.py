@@ -5,6 +5,7 @@ from core.models import PublishedModel
 from .utils import PublishedPostQuerySet
 
 TITLE_MAX_LENGTH = 256
+TITLE_LENGTH_OUTPUT = 10
 
 User = get_user_model()
 
@@ -17,15 +18,15 @@ class Category(PublishedModel):
     slug = models.SlugField(
         verbose_name='Идентификатор',
         unique=True,
-        help_text=("Идентификатор страницы для URL; разрешены символы "
-                   "латиницы, цифры, дефис и подчёркивание."))
+        help_text=('Идентификатор страницы для URL; разрешены символы '
+                   'латиницы, цифры, дефис и подчёркивание.'))
 
     class Meta:
         verbose_name = 'категория'
         verbose_name_plural = 'Категории'
 
     def __str__(self):
-        return self.title
+        return self.title[:TITLE_LENGTH_OUTPUT]
 
 
 class Location(PublishedModel):
@@ -38,7 +39,7 @@ class Location(PublishedModel):
         verbose_name_plural = 'Местоположения'
 
     def __str__(self):
-        return self.name
+        return self.name[:TITLE_LENGTH_OUTPUT]
 
 
 class Post(PublishedModel):
@@ -48,8 +49,8 @@ class Post(PublishedModel):
     text = models.TextField(verbose_name='Текст')
     pub_date = models.DateTimeField(
         verbose_name='Дата и время публикации',
-        help_text=("Если установить дату и время в будущем — можно делать "
-                   "отложенные публикации."))
+        help_text=('Если установить дату и время в будущем — можно делать '
+                   'отложенные публикации.'))
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -79,13 +80,13 @@ class Post(PublishedModel):
     objects = PublishedPostQuerySet.as_manager()
 
     def __str__(self):
-        return self.title
+        return self.title[:TITLE_LENGTH_OUTPUT]
 
 
 class Comment(models.Model):
     text = models.TextField(verbose_name='Текст комментария')
     post = models.ForeignKey(Post, on_delete=models.CASCADE,
-                             related_name='comment', verbose_name='Публикация')
+                             related_name='comments', verbose_name='Публикация')
     created_at = models.DateTimeField(
         auto_now_add=True, verbose_name='Создано')
     author = models.ForeignKey(

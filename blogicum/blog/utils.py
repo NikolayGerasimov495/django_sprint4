@@ -12,5 +12,8 @@ class PublishedPostQuerySet(models.QuerySet):
                            pub_date__lte=timezone.now())
 
     def published_count_order(self):
-        return (self.annotate(comment_count=Count("comment"))
-                .order_by("-pub_date"))
+        return (self.annotate(comment_count=Count('comments'))
+                .order_by('-pub_date'))
+
+    def post_select_related(self):
+        return self.select_related('location', 'author', 'category')

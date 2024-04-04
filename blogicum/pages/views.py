@@ -3,10 +3,14 @@ from django.views.generic import TemplateView
 
 
 class About(TemplateView):
+    """Представление информации о проекте"""
+
     template_name = 'pages/about.html'
 
 
 class Rules(TemplateView):
+    """Представление о правилах проекта"""
+
     template_name = 'pages/rules.html'
 
 
@@ -20,3 +24,4 @@ def csrf_failure(request, reason=''):
 
 def server_error(request):
     return render(request, 'pages/500.html', status=500)
+
