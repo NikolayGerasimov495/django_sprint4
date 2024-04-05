@@ -7,7 +7,7 @@ from django.views.generic import (
 )
 
 from .forms import CommentForm, PostForm, ProfileEditForm
-from .mixins import (CommentBaseViewMixin, CommentMixin, DispatchMixin,
+from .mixins import (CommentBaseViewMixin, CommentMixin, CheckAuthorMixin,
                      ProfileGetSuccessUrlMixin, PostDetailGetSuccessUrlMixin,
                      PostMixin)
 from .models import Category, Post
@@ -90,7 +90,7 @@ class PostCreateView(PostMixin, ProfileGetSuccessUrlMixin, LoginRequiredMixin,
         return super().form_valid(form)
 
 
-class PostUpdateView(PostDetailGetSuccessUrlMixin, PostMixin, DispatchMixin,
+class PostUpdateView(PostDetailGetSuccessUrlMixin, PostMixin, CheckAuthorMixin,
                      LoginRequiredMixin, UpdateView):
     """Представление для редактирования публикации"""
 
@@ -98,7 +98,7 @@ class PostUpdateView(PostDetailGetSuccessUrlMixin, PostMixin, DispatchMixin,
     pk_url_kwarg = 'post_id'
 
 
-class PostDeleteView(PostMixin, DispatchMixin, ProfileGetSuccessUrlMixin,
+class PostDeleteView(PostMixin, CheckAuthorMixin, ProfileGetSuccessUrlMixin,
                      LoginRequiredMixin, DeleteView):
     """Представление для удаления публикации"""
 

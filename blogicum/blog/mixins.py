@@ -53,7 +53,7 @@ class PostDetailGetSuccessUrlMixin:
                        kwargs={'id': self.kwargs['post_id']})
 
 
-class DispatchMixin:
+class CheckAuthorMixin:
 
     def dispatch(self, request, *args, **kwargs):
         if self.get_object().author != request.user:
